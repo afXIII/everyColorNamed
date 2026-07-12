@@ -12,19 +12,17 @@ export function useApiUrl(path: string): ComputedRef<string> {
   const apiBase = useApiBase()
   const version = useCatalogVersion()
 
-  return computed(() => {
-    const url = new URL(path, apiBase.endsWith('/') ? apiBase : `${apiBase}/`)
-    if (version.value) {
-      url.searchParams.set('v', version.value)
-    }
-    return url.toString()
-  })
+  return computed(() => apiUrl(path, version.value, apiBase))
 }
 
 export function apiUrl(path: string, version: string | null, apiBase: string): string {
-  const url = new URL(path, apiBase.endsWith('/') ? apiBase : `${apiBase}/`)
+  const base = apiBase.replace(/\/$/, '')
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  let url = `${base}${normalizedPath}`
+
   if (version) {
-    url.searchParams.set('v', version)
+    url += `${url.includes('?') ? '&' : '?'}v=${encodeURIComponent(version)}`
   }
-  return url.toString()
+
+  return url
 }
