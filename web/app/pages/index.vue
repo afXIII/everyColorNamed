@@ -34,6 +34,14 @@ function onSelect(row: ColorRow): void {
           <span v-if="manifest.status === 'released'">· released</span>
         </p>
       </div>
+      <a
+        class="browse__repo"
+        href="https://github.com/afXIII/everyColorNamed"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        GitHub
+      </a>
     </header>
 
     <div v-if="isLoading" class="browse__state">Loading catalog…</div>
@@ -78,9 +86,27 @@ function onSelect(row: ColorRow): void {
 }
 
 .browse__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
   padding: 1rem 1.25rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   background: #0f0f10;
+}
+
+.browse__repo {
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  color: #a1a1aa;
+  text-decoration: none;
+}
+
+.browse__repo:hover,
+.browse__repo:focus-visible {
+  color: #e8e8ea;
+  text-decoration: underline;
 }
 
 .browse__title {

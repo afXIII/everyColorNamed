@@ -2,6 +2,8 @@
 
 A catalog of every RGB color with static, unique, human-readable names.
 
+- **Live:** [https://everycolornamed-production-iou7og.laravel.cloud/](https://everycolornamed-production-iou7og.laravel.cloud/)
+- **Repo:** [github.com/afXIII/everyColorNamed](https://github.com/afXIII/everyColorNamed)
 - **Laravel app:** `everyColorNamed/` — build pipeline + JSON API
 - **Herd:** [http://everycolornamed.test](http://everycolornamed.test)
 - **Web UI:** `web/` — Nuxt browse app (`npm run dev` → http://localhost:3000)
@@ -50,5 +52,7 @@ Site linked as **everycolornamed.test** pointing at `everyColorNamed/`.
 Set `COLOR_DATA_PATH` in `.env` if needed (defaults to `../data`).
 
 ## Deploy (Laravel Cloud)
+
+Production: [https://everycolornamed-production-iou7og.laravel.cloud/](https://everycolornamed-production-iou7og.laravel.cloud/)
 
 See [DEPLOY.md](./DEPLOY.md) for Object Storage, build script, and jump-nav notes.
