@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run from Laravel Cloud build commands (app root = everyColorNamed):
-#   bash cloud-build.sh
+#   bash build.sh
 #
 # Do NOT also leave Cloud's default "composer install" lines — this script
 # handles Composer + the Nuxt SPA.

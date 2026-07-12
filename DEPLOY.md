@@ -5,7 +5,7 @@
 Single Laravel Cloud app rooted at `everyColorNamed/`:
 
 - **API** — `/api/*` (manifest, browse windows, color detail)
-- **SPA** — Nuxt static build copied into `public/` at build time (`cloud-build.sh`)
+- **SPA** — Nuxt static build copied into `public/` at build time (`build.sh`)
 - **Catalog data** — ~5.7GB SQLite (`browse.sqlite` + 256 shards). **Not in git.**
 
 Catalog files live in **[Laravel Object Storage](https://cloud.laravel.com/docs/resources/object-storage)** (a Cloud bucket you attach in the dashboard). Compute disk is ephemeral and small; the bucket is the durable home for the release. After deploy, sync the release onto the instance so SQLite can open local files.
@@ -16,7 +16,7 @@ Catalog files live in **[Laravel Object Storage](https://cloud.laravel.com/docs/
 2. Set **application root** to `everyColorNamed` (monorepo picker).
 3. **Build commands** — delete Cloud’s defaults and use **only**:
    ```bash
-   bash cloud-build.sh
+   bash build.sh
    ```
    (Script lives in `everyColorNamed/`. Do not leave an extra `composer install` above it.)
 4. On the environment canvas, **Add bucket** → Laravel Object Storage (private). Pick a disk name (e.g. `catalog`) or make it the default disk. Re-deploy so credentials are injected ([docs](https://cloud.laravel.com/docs/resources/object-storage)).
