@@ -14,11 +14,19 @@ Catalog files live in **[Laravel Object Storage](https://cloud.laravel.com/docs/
 
 1. Push this repo to GitHub/GitLab and create a Laravel Cloud application.
 2. Set **application root** to `everyColorNamed` (monorepo picker).
-3. **Build commands** — delete Cloud’s defaults and use **only**:
+3. **Build commands** — paste this entire block (Cloud truncates short script names; do not use `bash build.sh`):
    ```bash
-   bash build.sh
+   set -euo pipefail
+   export APP_KEY="${APP_KEY:-base64:$(openssl rand -base64 32 | tr -d '\n')}"
+   composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+   cd ../web
+   npm ci --audit false
+   NUXT_PUBLIC_API_BASE=/api npm run generate
+   cd ../everyColorNamed
+   rm -rf public/_nuxt public/index.html public/200.html public/404.html
+   cp -R ../web/.output/public/. public/
+   test -f public/index.php
    ```
-   (Script lives in `everyColorNamed/`. Do not leave an extra `composer install` above it.)
 4. On the environment canvas, **Add bucket** → Laravel Object Storage (private). Pick a disk name (e.g. `catalog`) or make it the default disk. Re-deploy so credentials are injected ([docs](https://cloud.laravel.com/docs/resources/object-storage)).
 5. Environment variables:
    | Key | Value |
