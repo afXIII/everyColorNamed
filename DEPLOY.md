@@ -19,14 +19,15 @@ Single Laravel Cloud app rooted at `everyColorNamed/`:
    rm -rf vendor
    composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts --no-cache
    ```
-4. Attach a **private** Laravel Object Storage bucket; note the disk name; redeploy.
-5. Env vars: `APP_KEY`, `APP_ENV=production`, `APP_DEBUG=false`, `COLOR_DATA_PATH=/var/www/html/storage/app/color-data`
+4. Attach a **private** Laravel Object Storage bucket. Laravel Cloud creates a disk with the name you choose (e.g. `colors`) — **not** `s3`. Redeploy after attaching.
+5. Env vars: `APP_KEY`, `APP_ENV=production`, `APP_DEBUG=false`, `COLOR_DATA_PATH=/var/www/html/storage/app/color-data`, `FILESYSTEM_DISK=colors` (use your disk name). Optional if sync errors on region: `AWS_DEFAULT_REGION=auto` — only needed when using the generic `s3` disk, not your attached bucket disk.
 6. Compute: **Pro 16 GiB** (need ~6GB+ local disk for catalog sync).
 7. Upload `data/releases/v1` to the bucket under `releases/v1/`.
-8. Sync:
+8. Sync — **must use the Cloud disk name** (bucket credentials live there, not on `s3`):
    ```bash
-   php artisan colors:sync-catalog --disk=YOUR_DISK_NAME --prefix=releases/v1
+   php artisan colors:sync-catalog --disk=colors --prefix=releases/v1
    ```
+   Or omit `--disk` if you set `FILESYSTEM_DISK=colors`.
 
 ## Updating the UI
 

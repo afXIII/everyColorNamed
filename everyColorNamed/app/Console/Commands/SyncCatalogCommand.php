@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 class SyncCatalogCommand extends Command
 {
     protected $signature = 'colors:sync-catalog
-                            {--disk=s3 : Filesystem disk (Laravel Cloud Object Storage)}
+                            {--disk= : Filesystem disk (defaults to FILESYSTEM_DISK)}
                             {--prefix= : Remote prefix, e.g. releases/v1}
                             {--local= : Local destination (defaults to COLOR_DATA_PATH/current root)}';
 
@@ -17,7 +17,7 @@ class SyncCatalogCommand extends Command
 
     public function handle(DataPaths $paths): int
     {
-        $diskName = (string) $this->option('disk');
+        $diskName = (string) ($this->option('disk') ?: config('filesystems.default', 's3'));
         $prefix = trim((string) $this->option('prefix'), '/');
         if ($prefix === '') {
             $this->components->error('Pass --prefix=releases/v1 (remote path containing manifest.json + browse.sqlite + shards/)');
@@ -49,7 +49,9 @@ class SyncCatalogCommand extends Command
                 return self::FAILURE;
             }
             $this->line("  ← {$file}");
-            file_put_contents($localRoot.DIRECTORY_SEPARATOR.$file, $disk->get($remote));
+            if (! $this->streamDownload($disk, $remote, $localRoot.DIRECTORY_SEPARATOR.$file)) {
+                return self::FAILURE;
+            }
         }
 
         $shardsRemote = $prefix.'/shards';
@@ -69,18 +71,11 @@ class SyncCatalogCommand extends Command
 
         foreach ($shardFiles as $remotePath) {
             $name = basename($remotePath);
-            $stream = $disk->readStream($remotePath);
-            if ($stream === false) {
+            if (! $this->streamDownload($disk, $remotePath, $shardsLocal.DIRECTORY_SEPARATOR.$name)) {
                 $this->newLine();
                 $this->components->error("Failed to read {$remotePath}");
 
                 return self::FAILURE;
-            }
-            $out = fopen($shardsLocal.DIRECTORY_SEPARATOR.$name, 'w');
-            stream_copy_to_stream($stream, $out);
-            fclose($out);
-            if (is_resource($stream)) {
-                fclose($stream);
             }
             $bar->advance();
         }
@@ -95,5 +90,33 @@ class SyncCatalogCommand extends Command
         $this->components->info('Catalog sync complete');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @param  \Illuminate\Contracts\Filesystem\Filesystem  $disk
+     */
+    private function streamDownload($disk, string $remote, string $local): bool
+    {
+        $stream = $disk->readStream($remote);
+        if ($stream === false) {
+            return false;
+        }
+
+        $out = fopen($local, 'w');
+        if ($out === false) {
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+
+            return false;
+        }
+
+        stream_copy_to_stream($stream, $out);
+        fclose($out);
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+
+        return true;
     }
 }
