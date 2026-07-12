@@ -14,10 +14,11 @@ Catalog files live in **[Laravel Object Storage](https://cloud.laravel.com/docs/
 
 1. Push this repo to GitHub/GitLab and create a Laravel Cloud application.
 2. Set **application root** to `everyColorNamed` (monorepo picker).
-3. **Build command** (from app root):
+3. **Build commands** — delete Cloud’s defaults and use **only**:
    ```bash
-   bash ../cloud-build.sh
+   bash cloud-build.sh
    ```
+   (Script lives in `everyColorNamed/`. Do not leave an extra `composer install` above it.)
 4. On the environment canvas, **Add bucket** → Laravel Object Storage (private). Pick a disk name (e.g. `catalog`) or make it the default disk. Re-deploy so credentials are injected ([docs](https://cloud.laravel.com/docs/resources/object-storage)).
 5. Environment variables:
    | Key | Value |
