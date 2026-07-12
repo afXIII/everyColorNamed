@@ -1,0 +1,52 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+.zed/
+.cursor/
+.codex/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# PHP / Laravel
+everyColorNamed/vendor/
+everyColorNamed/node_modules/
+everyColorNamed/.phpunit.cache/
+everyColorNamed/.phpunit.result.cache
+everyColorNamed/auth.json
+everyColorNamed/storage/*.key
+everyColorNamed/storage/pail/
+everyColorNamed/storage/logs/
+everyColorNamed/storage/framework/cache/
+everyColorNamed/storage/framework/sessions/
+everyColorNamed/storage/framework/views/
+everyColorNamed/public/build/
+everyColorNamed/public/hot
+everyColorNamed/public/storage
+everyColorNamed/public/_nuxt/
+everyColorNamed/public/index.html
+everyColorNamed/public/200.html
+everyColorNamed/public/404.html
+
+# Nuxt
+web/node_modules/
+web/.nuxt/
+web/.output/
+web/dist/
+web/.data/
+
+# Catalog data (too large for git — use Object Storage)
+data/builds/
+data/releases/
+data/seeds/raw/
+data/seeds/merged.json
+data/seeds/import_manifest.json
+data/current
+*.sqlite-shm
+*.sqlite-wal
+
+# Logs
+*.log
