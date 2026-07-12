@@ -18,10 +18,9 @@
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
-/public/_nuxt
-/public/index.html
-/public/200.html
-/public/404.html
+# Prebuilt Nuxt SPA is committed for Laravel Cloud deploys
+# /public/_nuxt
+# /public/index.html
 /storage/*.key
 /storage/pail
 /vendor

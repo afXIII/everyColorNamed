@@ -5,59 +5,41 @@
 Single Laravel Cloud app rooted at `everyColorNamed/`:
 
 - **API** — `/api/*` (manifest, browse windows, color detail)
-- **SPA** — Nuxt static build copied into `public/` at build time (`build.sh`)
-- **Catalog data** — ~5.7GB SQLite (`browse.sqlite` + 256 shards). **Not in git.**
-
-Catalog files live in **[Laravel Object Storage](https://cloud.laravel.com/docs/resources/object-storage)** (a Cloud bucket you attach in the dashboard). Compute disk is ephemeral and small; the bucket is the durable home for the release. After deploy, sync the release onto the instance so SQLite can open local files.
+- **SPA** — prebuilt Nuxt output committed into `everyColorNamed/public/` (Cloud cannot see `../web`)
+- **Catalog data** — ~5.7GB SQLite. **Not in git.** Lives in Laravel Object Storage; sync onto the instance after deploy.
 
 ## One-time setup
 
-1. Push this repo to GitHub/GitLab and create a Laravel Cloud application.
-2. Set **application root** to `everyColorNamed` (monorepo picker).
-3. **Build commands** — paste this entire block (Cloud truncates short script names; do not use `bash build.sh`):
+1. Push this repo and create a Laravel Cloud application.
+2. App root: **`everyColorNamed`**.
+3. **Build commands** — only Composer (no Node / no `cd ../web`):
    ```bash
    set -euo pipefail
-   export APP_KEY="${APP_KEY:-base64:$(openssl rand -base64 32 | tr -d '\n')}"
-   composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-   cd ../web
-   npm ci --audit false
-   NUXT_PUBLIC_API_BASE=/api npm run generate
-   cd ../everyColorNamed
-   rm -rf public/_nuxt public/index.html public/200.html public/404.html
-   cp -R ../web/.output/public/. public/
-   test -f public/index.php
+   if [ -z "${APP_KEY:-}" ]; then export APP_KEY="base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; fi
+   rm -rf vendor
+   composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts --no-cache
    ```
-4. On the environment canvas, **Add bucket** → Laravel Object Storage (private). Pick a disk name (e.g. `catalog`) or make it the default disk. Re-deploy so credentials are injected ([docs](https://cloud.laravel.com/docs/resources/object-storage)).
-5. Environment variables:
-   | Key | Value |
-   |-----|--------|
-   | `APP_KEY` | generated |
-   | `APP_ENV` | `production` |
-   | `APP_DEBUG` | `false` |
-   | `COLOR_DATA_PATH` | e.g. `/var/www/html/storage/app/color-data` |
-   | (bucket vars) | Injected by Cloud when the bucket is attached |
-6. Upload `data/releases/v1` into the bucket (prefix `releases/v1/`). From your machine, use the bucket credentials under **Resources → Object storage → ⋯ → View credentials** (Cyberduck, `aws` CLI with that endpoint, etc.).
-7. On the instance (Cloud → Commands):
+4. Attach a **private** Laravel Object Storage bucket; note the disk name; redeploy.
+5. Env vars: `APP_KEY`, `APP_ENV=production`, `APP_DEBUG=false`, `COLOR_DATA_PATH=/var/www/html/storage/app/color-data`
+6. Compute: **Pro 16 GiB** (need ~6GB+ local disk for catalog sync).
+7. Upload `data/releases/v1` to the bucket under `releases/v1/`.
+8. Sync:
    ```bash
-   php artisan colors:sync-catalog --disk=catalog --prefix=releases/v1
+   php artisan colors:sync-catalog --disk=YOUR_DISK_NAME --prefix=releases/v1
    ```
-   Use whatever disk name you chose in step 4 (`--disk=s3` only if that is the disk name Cloud assigned).
-8. Ensure compute has enough ephemeral disk for the sync (~6GB+ → roughly ≥12GB RAM on Cloud’s sizing). Redeploys wipe local disk; re-run sync (or add it to a deploy hook) after each deploy.
 
-## Local release checklist
+## Updating the UI
+
+Rebuild the SPA locally, then commit `everyColorNamed/public/`:
 
 ```bash
-cd everyColorNamed
-php artisan colors:rebuild-jump-nav
-php artisan colors:verify-unique
-php artisan colors:release {build_id} --public-version=1
-# upload data/releases/v1 into the Cloud bucket under releases/v1/
+cd web
+NUXT_PUBLIC_API_BASE=/api npm run generate
+cd ..
+rm -rf everyColorNamed/public/_nuxt everyColorNamed/public/index.html everyColorNamed/public/200.html everyColorNamed/public/404.html
+cp -R web/.output/public/. everyColorNamed/public/
 ```
 
 ## Jump nav
 
-Nav items scroll to the **middle row** of each hue bucket’s range in `browse.sqlite`. Recompute with:
-
-```bash
-php artisan colors:rebuild-jump-nav
-```
+Middle of each hue bucket. Recompute with `php artisan colors:rebuild-jump-nav`.

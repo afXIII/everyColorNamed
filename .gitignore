@@ -26,10 +26,8 @@ everyColorNamed/storage/framework/views/
 everyColorNamed/public/build/
 everyColorNamed/public/hot
 everyColorNamed/public/storage
-everyColorNamed/public/_nuxt/
-everyColorNamed/public/index.html
-everyColorNamed/public/200.html
-everyColorNamed/public/404.html
+# SPA is prebuilt and committed (Cloud build cannot cd ../web)
+# everyColorNamed/public/_nuxt/ and index.html are tracked
 
 # Nuxt
 web/node_modules/
@@ -50,3 +48,4 @@ data/current
 
 # Logs
 *.log
+web/dist/
